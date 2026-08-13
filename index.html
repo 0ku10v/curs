@@ -3,55 +3,188 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://cdn.jsdelivr.net https://www.cbr-xml-daily.com https://r.jina.ai; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>USD / RUB — живой курс</title>
   <style>
     :root{color-scheme:dark;--bg:#090b10;--card:#141823;--line:#69e19e;--muted:#8991a3}
     *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 20% 0,#1d2a38,transparent 42%),var(--bg);color:#f7f8fb;font-family:Inter,system-ui,sans-serif}
     main{width:min(920px,calc(100% - 32px));padding:clamp(22px,5vw,52px);border:1px solid #ffffff1c;border-radius:32px;background:#121620cc;box-shadow:0 30px 90px #0008;backdrop-filter:blur(24px)}
-    header{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.label,.status{color:var(--muted);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
-    h1{margin:14px 0 0;font-size:clamp(54px,11vw,112px);line-height:.85;letter-spacing:-.075em}.unit{font-size:.28em;color:var(--muted);letter-spacing:0}
-    .change{margin-top:20px;font-size:16px}.up{color:#69e19e}.down{color:#ff7d88}.chart{height:330px;margin:40px -8px 22px;position:relative}
+    header{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}header>div:first-child{min-width:0;flex:1}.label{color:var(--muted);font-size:12px;letter-spacing:.12em;text-transform:uppercase}.header-tools{display:flex;flex-direction:column;align-items:flex-end;gap:9px}.currency-switch{display:flex;gap:3px;padding:3px;border:1px solid #ffffff15;border-radius:11px;background:#ffffff06}.currency-switch button{padding:7px 9px;border:0;border-radius:8px;background:transparent;color:var(--muted);font:600 11px Inter,system-ui,sans-serif;cursor:pointer}.currency-switch button.active{background:#ffffff14;color:#fff}.live-panel{display:flex;flex-direction:column;align-items:stretch;gap:5px}.live-status{display:flex;align-items:center;justify-content:center;gap:7px;padding:6px 9px;border:1px solid #ffffff12;border-radius:9px;background:#ffffff05;color:var(--muted);font-size:10px;white-space:nowrap}.live-dot{width:7px;height:7px;border-radius:50%;background:#8991a3}.live-status.online .live-dot{background:#69e19e;box-shadow:0 0 10px #69e19e}.live-status.online .live-word{color:#69e19e}.live-status.offline .live-dot{background:#ff7d88}.live-status.offline .live-word{color:#ff7d88}.live-word{font-weight:700;letter-spacing:.08em}.world-clocks{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}.world-clock{padding:5px 6px;border:1px solid #ffffff0e;border-radius:7px;background:#ffffff04;text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}.world-clock b{display:block;color:#b4bbca;font-size:8px;letter-spacing:.06em}.world-clock time{display:block;margin-top:1px;color:#f7f8fb;font-size:9px}.world-clock small{display:block;margin-top:1px;color:var(--muted);font-size:7px}
+    .rate-caption{margin-top:14px;color:var(--muted);font-size:13px;font-weight:600;letter-spacing:.04em}h1{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:8px 0 0;font-size:clamp(54px,11vw,112px);line-height:.85;letter-spacing:-.075em}.primary-rate{white-space:nowrap}.unit{font-size:.28em;color:var(--muted);letter-spacing:0}.market-inline{color:var(--muted);font-size:14px;font-weight:500;line-height:1.35;letter-spacing:0;white-space:nowrap}.market-meta{display:block;font-size:10px;font-weight:500}.market-meta a{color:inherit}
+    .signal{display:flex;align-items:center;gap:11px;width:fit-content;margin-top:20px;padding:11px 14px;border:1px solid #ffffff15;border-radius:14px;background:#ffffff06}.signal-light{width:12px;height:12px;flex:none;border-radius:50%;background:#8991a3;box-shadow:0 0 18px currentColor}.signal strong{display:block;font-size:14px}.signal small{display:block;margin-top:2px;color:var(--muted);font-size:12px}.signal.safe{color:#69e19e}.signal.warn{color:#ffd166}.signal.danger{color:#ff7d88}.signal.safe .signal-light,.signal.warn .signal-light,.signal.danger .signal-light{background:currentColor}.signal-rules{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;color:var(--muted);font-size:9px}.signal-rule{display:flex;align-items:center;gap:4px;padding:3px 6px;border:1px solid #ffffff0d;border-radius:999px;background:#ffffff04;white-space:nowrap}.rule-dot{width:5px;height:5px;border-radius:50%}.signal-rule.safe .rule-dot{background:#69e19e}.signal-rule.warn .rule-dot{background:#ffd166}.signal-rule.danger .rule-dot{background:#ff7d88}
+    .changes-caption{margin-top:24px;color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}.changes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}.change{padding:11px 12px;border:1px solid #ffffff12;border-radius:13px;background:#ffffff06}.change-label{display:block;margin-bottom:3px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}.change-date{display:block;color:var(--muted);font-size:10px}.change-base{display:block;margin:2px 0 7px;color:#b4bbca;font-size:10px;white-space:nowrap}.change-value{display:block;font-size:15px;font-weight:650;white-space:nowrap}.change-percent{display:block;margin-top:3px;font-size:12px}.up{color:#69e19e}.down{color:#ff7d88}.flat{color:var(--muted)}.chart{height:330px;margin:32px -8px 22px;position:relative}.chart-legend{position:absolute;top:0;right:16px;display:flex;gap:14px;color:var(--muted);font-size:11px}.legend-item{display:flex;align-items:center;gap:6px}.legend-line{width:18px;height:2px;border-radius:2px;background:#69e19e}.legend-line.exchange{background:#ffd166}
     canvas{width:100%;height:100%}.footer{display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:13px}.error{color:#ff9da5}
-    @media(max-width:600px){main{border-radius:24px}.chart{height:240px;margin-top:30px}.footer{flex-direction:column;gap:6px}}
+    .official{margin-top:28px;padding-top:24px;border-top:1px solid #ffffff14}.official h2{margin:0 0 14px;font-size:15px;font-weight:600}.official table{width:100%;border-collapse:collapse;font-size:13px}.official th,.official td{padding:9px 0;border-bottom:1px solid #ffffff0f;text-align:left}.official th{color:var(--muted);font-weight:500}.official td:last-child,.official th:last-child{text-align:right}.official tr.weekend{background:#ffd16608}.official tr.unpublished{background:#ff9da508}.day-note{display:inline-block;margin-left:8px;padding:2px 6px;border-radius:999px;font-size:9px;vertical-align:1px}.day-note.weekend{color:#ffd166;background:#ffd16616}.day-note.unpublished{color:#ff9da5;background:#ff9da516}.empty-rate{color:var(--muted)}.official small{display:block;margin-top:10px;color:var(--muted)}.official a{color:inherit}
+    @media(max-width:600px){main{border-radius:24px}.header-tools{gap:7px}.world-clock{padding:4px}.change{padding:10px 8px}.change-value{font-size:13px}.chart{height:240px;margin-top:30px}.footer{flex-direction:column;gap:6px}}
   </style>
 </head>
 <body>
 <main>
   <header>
-    <div><div class="label">Доллар США · Российский рубль</div><h1><span id="rate">—</span><span class="unit"> ₽</span></h1><div id="change" class="change">Загружаю данные…</div></div>
-    <div class="status">USD / RUB</div>
+    <div><div id="pair-label" class="label">Доллар США · Российский рубль</div><div id="rate-caption" class="rate-caption">Официальный курс ЦБ РФ</div><h1><span class="primary-rate"><span id="rate">—</span><span class="unit"> ₽</span></span><span class="market-inline">(рын. индикатор: <span id="market-rate">—</span> ₽)<span class="market-meta"><a id="market-source" href="https://www.liveexchanges.com/usd-rub" target="_blank" rel="noreferrer">LiveExchanges</a> · <span id="market-time">время —</span></span></span></h1><div id="signal" class="signal"><span class="signal-light"></span><span><strong>Считаю сигнал…</strong><small>Сопоставляю два источника</small></span></div><div id="signal-rules" class="signal-rules"></div><div class="changes-caption">Изменение официального курса ЦБ РФ</div><div id="changes" class="changes"><div class="change">Загружаю данные…</div></div></div>
+    <div class="header-tools"><div id="currency-switch" class="currency-switch"><button class="active" data-currency="USD">USD</button><button data-currency="EUR">EUR</button><button data-currency="CNY">CNY</button></div><div class="live-panel"><div id="live-status" class="live-status"><span class="live-dot"></span><span id="live-word" class="live-word">ЖДЁМ</span></div><div class="world-clocks"><div class="world-clock"><b>МСК</b><time id="clock-msk">—:—:—</time><small>UTC+3</small></div><div class="world-clock"><b>ЕКБ</b><time id="clock-ekb">—:—:—</time><small>UTC+5</small></div><div class="world-clock"><b>ВЛД</b><time id="clock-vvo">—:—:—</time><small>UTC+10</small></div></div></div></div>
   </header>
-  <div class="chart"><canvas id="chart" aria-label="График курса USD к RUB за 14 дней"></canvas></div>
+  <div class="chart"><canvas id="chart" aria-label="График курса USD к RUB за 14 дней"></canvas><div class="chart-legend"><span class="legend-item"><span class="legend-line"></span>ЦБ РФ</span><span class="legend-item"><span class="legend-line exchange"></span>Рыночный индикатор</span></div></div>
   <div class="footer"><span id="period">Последние 14 дней</span><span id="updated">Обновление…</span></div>
+  <section class="official">
+    <h2 id="table-title">Официальный курс ЦБ РФ · календарь за 14 дней</h2>
+    <table><thead><tr><th>Дата</th><th id="table-currency">1 USD</th></tr></thead><tbody id="cbr-rates"><tr><td colspan="2">Загружаю данные…</td></tr></tbody></table>
+    <small>Источник: <a href="https://www.cbr.ru/currency_base/daily/" target="_blank" rel="noreferrer">Банк России</a></small>
+  </section>
 </main>
 <script>
-const rateEl=document.querySelector('#rate'),changeEl=document.querySelector('#change'),updatedEl=document.querySelector('#updated'),canvas=document.querySelector('#chart');
-const api=date=>`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${date}/v1/currencies/usd.json`;
+const rateEl=document.querySelector('#rate'),rateCaptionEl=document.querySelector('#rate-caption'),marketRateEl=document.querySelector('#market-rate'),marketTimeEl=document.querySelector('#market-time'),marketSourceEl=document.querySelector('#market-source'),liveStatusEl=document.querySelector('#live-status'),liveWordEl=document.querySelector('#live-word'),signalEl=document.querySelector('#signal'),signalRulesEl=document.querySelector('#signal-rules'),changesEl=document.querySelector('#changes'),updatedEl=document.querySelector('#updated'),canvas=document.querySelector('#chart'),cbrRatesEl=document.querySelector('#cbr-rates'),pairLabelEl=document.querySelector('#pair-label'),tableCurrencyEl=document.querySelector('#table-currency');
+const currencies={USD:{name:'Доллар США'},EUR:{name:'Евро'},CNY:{name:'Китайский юань'}};
+const api=(date,code)=>`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${date}/v1/currencies/${code.toLowerCase()}.json`;
 const iso=d=>d.toISOString().slice(0,10);
-async function load(){
-  try{
-    const days=[...Array(14)].map((_,i)=>{const d=new Date();d.setUTCDate(d.getUTCDate()-13+i);return iso(d)});
-    const settled=await Promise.allSettled(days.map(async d=>{const r=await fetch(api(d));if(!r.ok)throw 0;const j=await r.json();return{date:d,value:j.usd.rub}}));
-    let data=settled.filter(x=>x.status==='fulfilled').map(x=>x.value);
-    if(data.length<2){const r=await fetch(api('latest'));const j=await r.json();data=[{date:iso(new Date()),value:j.usd.rub}]}
-    const last=data.at(-1),prev=data.at(-2)||last,delta=last.value-prev.value;
-    rateEl.textContent=last.value.toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
-    changeEl.textContent=`${delta>=0?'▲':'▼'} ${Math.abs(delta).toFixed(2)} ₽ к предыдущему значению`;
-    changeEl.className='change '+(delta>=0?'up':'down');
-    updatedEl.textContent='Обновлено '+new Date().toLocaleString('ru-RU',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'long'});
-    draw(data);
-  }catch(e){changeEl.textContent='Не удалось загрузить курс. Попробуйте обновить страницу.';changeEl.className='change error';updatedEl.textContent='Нет соединения'}
+let selectedCurrency='USD',marketData=[],officialRows=[],loadVersion=0,liveRequest=null,liveRequestVersion=-1,lastCbrLoad=0;
+function readCbrPoint(data,currency){
+  const date=String(data?.Date||'').slice(0,10),valute=data?.Valute?.[currency],value=Number(valute?.Value)/Number(valute?.Nominal);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(value))throw new Error('Invalid CBR data');
+  return{date,value};
 }
-function draw(data){
+async function fetchWithTimeout(url,options={}){
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+  try{return await fetch(url,{...options,signal:controller.signal})}finally{clearTimeout(timer)}
+}
+async function loadMarketHistory(){
+  const currency=selectedCurrency,version=loadVersion;
+  try{
+    const days=[...Array(31)].map((_,i)=>{const d=new Date();d.setUTCDate(d.getUTCDate()-30+i);return iso(d)});
+    const key=currency.toLowerCase(),settled=await Promise.allSettled(days.map(async d=>{const r=await fetchWithTimeout(api(d,currency));if(!r.ok)throw 0;const j=await r.json(),value=Number(j?.[key]?.rub);if(!Number.isFinite(value))throw 0;return{date:d,value}}));
+    let data=settled.filter(x=>x.status==='fulfilled').map(x=>x.value);
+    if(data.length<2){const r=await fetchWithTimeout(api('latest',currency)),j=await r.json(),value=Number(j?.[key]?.rub);if(!Number.isFinite(value))throw 0;data=[{date:iso(new Date()),value}]}
+    if(version!==loadVersion)return;
+    marketData=data;drawCombined();await refreshMarket(true);
+  }catch(e){liveStatusEl.className='live-status offline';liveWordEl.textContent='НЕТ ДАННЫХ';updatedEl.textContent='Не удалось загрузить историю'}
+}
+async function refreshMarket(force=false){
+  if(!force&&document.hidden)return;
+  const currency=selectedCurrency,version=loadVersion;
+  if(liveRequest&&liveRequestVersion===version)return liveRequest;
+  liveRequestVersion=version;
+  liveRequest=(async()=>{
+    try{
+      const live=await loadLiveExchanges(currency);if(version!==loadVersion)return;
+      const today=iso(new Date());marketData=marketData.filter(x=>x.date!==today);marketData.push({date:today,value:live.value});marketData.sort((a,b)=>a.date.localeCompare(b.date));
+      marketRateEl.textContent=live.value.toLocaleString('ru-RU',{minimumFractionDigits:4,maximumFractionDigits:4});
+      marketTimeEl.textContent=`получено ${live.receivedAt.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}`;
+      marketSourceEl.href=`https://www.liveexchanges.com/${currency.toLowerCase()}-rub`;
+      liveStatusEl.className='live-status online';liveWordEl.textContent='LIVE';renderSignal();drawCombined();
+      updatedEl.textContent='Обновлено '+live.receivedAt.toLocaleString('ru-RU',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'long'});
+    }catch(e){if(version===loadVersion){liveStatusEl.className='live-status offline';liveWordEl.textContent='НЕТ ДАННЫХ';updatedEl.textContent='Ошибка обновления'}}
+    finally{if(liveRequestVersion===version)liveRequest=null}
+  })();
+  return liveRequest;
+}
+async function loadLiveExchanges(currency){
+  const source=`http://www.liveexchanges.com/${currency.toLowerCase()}-rub?refresh=${Date.now()}`;
+  const r=await fetchWithTimeout(`https://r.jina.ai/${source}`,{cache:'no-store'});if(!r.ok)throw new Error('LiveExchanges unavailable');
+  const text=await r.text(),match=text.match(new RegExp(`1 ${currency}\\s+([\\d.,]+)`));if(!match)throw new Error('LiveExchanges rate not found');
+  const value=Number(match[1].replace(/,/g,''));if(!Number.isFinite(value))throw new Error('Invalid LiveExchanges rate');
+  return{value,receivedAt:new Date()};
+}
+function renderSignal(){
+  if(!marketData.length||!officialRows.length)return;
+  const market=marketData.at(-1).value,official=officialRows[0].value,spread=market-official,threshold=selectedCurrency==='CNY'?.15:.5,spreadText=Math.abs(spread).toLocaleString('ru-RU',{minimumFractionDigits:4,maximumFractionDigits:4}),thresholdText=threshold.toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
+  let state,title,reason;
+  if(spread<-threshold){state='safe';title='Можно не спешить';reason=`Рынок ниже ЦБ на ${spreadText} ₽`}
+  else if(spread>threshold){state='danger';title='Лучше поспешить';reason=`Рынок выше ЦБ на ${spreadText} ₽`}
+  else{state='warn';title='Наблюдаем';reason=`Расхождение с ЦБ в пределах ±${thresholdText} ₽: ${spread>=0?'+':'−'}${spreadText} ₽`}
+  signalEl.className='signal '+state;
+  signalEl.innerHTML=`<span class="signal-light"></span><span><strong>${title}</strong><small>${reason}</small></span>`;
+  renderSignalRules(threshold);
+}
+function renderSignalRules(threshold=selectedCurrency==='CNY'?.15:.5){
+  const value=threshold.toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
+  signalRulesEl.innerHTML=`<span class="signal-rule safe"><span class="rule-dot"></span>ниже −${value} ₽</span><span class="signal-rule warn"><span class="rule-dot"></span>от −${value} до +${value} ₽</span><span class="signal-rule danger"><span class="rule-dot"></span>выше +${value} ₽</span>`;
+}
+function renderChanges(data,last){
+  const periods=[['День',1],['3 дня',3],['Неделя',7],['Месяц',30],['Квартал',90],['Полгода',180]];
+  changesEl.innerHTML=periods.map(([label,days])=>{
+    const target=new Date(last.date+'T00:00:00Z');target.setUTCDate(target.getUTCDate()-days);
+    const previous=[...data].reverse().find(x=>x.date<=iso(target))||data[0],delta=last.value-previous.value,pct=delta/previous.value*100;
+    const state=delta>0?'up':delta<0?'down':'flat',arrow=delta>0?'▲':delta<0?'▼':'•';
+    const [y,m,d]=previous.date.split('-');
+    return`<div class="change ${state}"><span class="change-label">${label}</span><span class="change-date">с ${d}.${m}.${y}</span><span class="change-base">Курс: ${previous.value.toLocaleString('ru-RU',{minimumFractionDigits:4,maximumFractionDigits:4})} ₽</span><span class="change-value">${arrow} ${Math.abs(delta).toLocaleString('ru-RU',{minimumFractionDigits:4,maximumFractionDigits:4})} ₽</span><span class="change-percent">${delta>0?'+':delta<0?'−':''}${Math.abs(pct).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})}%</span></div>`
+  }).join('');
+}
+function draw(data,official=[]){
   const dpr=devicePixelRatio||1,w=canvas.clientWidth,h=canvas.clientHeight;canvas.width=w*dpr;canvas.height=h*dpr;
   const c=canvas.getContext('2d');c.scale(dpr,dpr);c.clearRect(0,0,w,h);
-  const values=data.map(x=>x.value),min=Math.min(...values),max=Math.max(...values),span=max-min||1,p=16;
-  const point=(v,i)=>[p+i*(w-2*p)/Math.max(data.length-1,1),p+(max-v)*(h-2*p)/span];
-  const grad=c.createLinearGradient(0,0,0,h);grad.addColorStop(0,'#69e19e55');grad.addColorStop(1,'#69e19e00');
-  c.beginPath();values.forEach((v,i)=>{const [x,y]=point(v,i);i?c.lineTo(x,y):c.moveTo(x,y)});c.lineTo(w-p,h);c.lineTo(p,h);c.closePath();c.fillStyle=grad;c.fill();
-  c.beginPath();values.forEach((v,i)=>{const [x,y]=point(v,i);i?c.lineTo(x,y):c.moveTo(x,y)});c.strokeStyle='#69e19e';c.lineWidth=3;c.lineJoin='round';c.lineCap='round';c.stroke();
+  const officialVisible=official.filter(x=>x.date>=data[0].date&&x.date<=data.at(-1).date),values=data.map(x=>x.value),officialValues=officialVisible.map(x=>x.value),allValues=[...values,...officialValues],min=Math.min(...allValues),max=Math.max(...allValues),scaleMin=Math.floor(min),scaleMax=Math.ceil(max),span=scaleMax-scaleMin||1,left=52,right=16,top=16,bottom=30,plotBottom=h-bottom;
+  const point=(v,i)=>[left+i*(w-left-right)/Math.max(data.length-1,1),top+(scaleMax-v)*(plotBottom-top)/span];
+  c.font='11px Inter,system-ui,sans-serif';c.textAlign='right';c.textBaseline='middle';
+  const tickStep=Math.max(1,Math.ceil(span/5));
+  for(let value=scaleMin;value<=scaleMax;value+=tickStep){
+    const y=top+(scaleMax-value)*(plotBottom-top)/span;
+    c.beginPath();c.moveTo(left,y);c.lineTo(w-right,y);c.strokeStyle='#ffffff1f';c.lineWidth=1;c.stroke();
+    c.fillStyle='#8991a3';c.fillText(value+' ₽',left-7,y);
+  }
+  c.textAlign='center';c.textBaseline='bottom';
+  data.forEach((item,i)=>{
+    const [x]=point(item.value,i);
+    c.beginPath();c.moveTo(x,top);c.lineTo(x,plotBottom);c.strokeStyle='#ffffff14';c.lineWidth=1;c.stroke();
+    c.fillStyle='#8991a3';c.fillText(item.date.slice(8,10),x,h-3);
+  });
+  const grad=c.createLinearGradient(0,0,0,h);grad.addColorStop(0,'#ffd16633');grad.addColorStop(1,'#ffd16600');
+  c.beginPath();values.forEach((v,i)=>{const [x,y]=point(v,i);i?c.lineTo(x,y):c.moveTo(x,y)});c.lineTo(w-right,plotBottom);c.lineTo(left,plotBottom);c.closePath();c.fillStyle=grad;c.fill();
+  c.beginPath();values.forEach((v,i)=>{const [x,y]=point(v,i);i?c.lineTo(x,y):c.moveTo(x,y)});c.strokeStyle='#ffd166';c.lineWidth=2.5;c.setLineDash([7,5]);c.lineJoin='round';c.lineCap='round';c.stroke();c.setLineDash([]);
+  values.forEach((v,i)=>{const [x,y]=point(v,i);c.beginPath();c.arc(x,y,3,0,Math.PI*2);c.fillStyle='#ffd166';c.fill()});
+  const officialPoints=officialVisible.map(item=>{const i=data.findIndex(x=>x.date===item.date);return i<0?null:point(item.value,i)}).filter(Boolean);
+  if(officialPoints.length){c.beginPath();officialPoints.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.strokeStyle='#69e19e';c.lineWidth=3;c.stroke();officialPoints.forEach(([x,y])=>{c.beginPath();c.arc(x,y,3.5,0,Math.PI*2);c.fillStyle='#69e19e';c.fill()})}
 }
-load();setInterval(load,15*60*1000);addEventListener('resize',load);
+function drawCombined(){
+  if(!marketData.length)return;
+  draw(marketData.slice(-14),officialRows);
+}
+async function loadCbr(){
+  const currency=selectedCurrency,version=loadVersion;
+  try{
+    const rows=[],cutoff=new Date();cutoff.setUTCDate(cutoff.getUTCDate()-31);let url='https://www.cbr-xml-daily.com/daily_json.js';
+    for(let i=0;i<35;i++){
+      const r=await fetchWithTimeout(url);if(!r.ok)throw 0;const j=await r.json(),point=readCbrPoint(j,currency);
+      rows.push(point);
+      if(point.date<=iso(cutoff))break;
+      url=new URL(j.PreviousURL,'https://www.cbr-xml-daily.com').href.replace(/^http:/,'https:');
+    }
+    if(version!==loadVersion)return;officialRows=rows;lastCbrLoad=Date.now();rateEl.textContent=rows[0].value.toLocaleString('ru-RU',{minimumFractionDigits:4,maximumFractionDigits:4});
+    const [y,m,d]=rows[0].date.split('-');rateCaptionEl.textContent=`Официальный курс ЦБ РФ на ${d}.${m}.${y}`;
+    const longDates=await Promise.all([90,180].map(days=>loadCbrNear(rows[0].date,days,currency)));
+    if(version!==loadVersion)return;
+    const chronological=[...longDates.filter(Boolean),...rows].filter((x,i,a)=>a.findIndex(y=>y.date===x.date)===i).sort((a,b)=>a.date.localeCompare(b.date));renderChanges(chronological,chronological.at(-1));renderSignal();drawCombined();
+    renderCbrCalendar(rows);
+  }catch(e){cbrRatesEl.innerHTML='<tr><td colspan="2" class="error">Не удалось загрузить данные ЦБ РФ</td></tr>'}
+}
+function renderCbrCalendar(rows){
+  const byDate=new Map(rows.map(row=>[row.date,row])),latest=new Date(rows[0].date+'T00:00:00Z'),calendar=[];
+  for(let i=0;i<14;i++){
+    const date=new Date(latest);date.setUTCDate(date.getUTCDate()-i);const dateIso=iso(date),row=byDate.get(dateIso),weekend=[0,6].includes(date.getUTCDay()),[y,m,d]=dateIso.split('-');
+    if(row){const weekendBadge=weekend?'<span class="day-note weekend">Выходной</span>':'';calendar.push(`<tr class="${weekend?'weekend':''}"><td>${d}.${m}.${y}${weekendBadge}</td><td>${row.value.toLocaleString('ru-RU',{minimumFractionDigits:4,maximumFractionDigits:4})} ₽</td></tr>`)}
+    else{const type=weekend?'weekend':'unpublished',note=weekend?'Выходной':'Нет публикации';calendar.push(`<tr class="${type}"><td>${d}.${m}.${y}<span class="day-note ${type}">${note}</span></td><td class="empty-rate">—</td></tr>`)}
+  }
+  cbrRatesEl.innerHTML=calendar.join('');
+}
+async function loadCbrNear(latestDate,days,currency){
+  const target=new Date(latestDate+'T00:00:00Z');target.setUTCDate(target.getUTCDate()-days);
+  for(let back=0;back<10;back++){
+    const d=new Date(target);d.setUTCDate(d.getUTCDate()-back);const date=iso(d),[y,m,day]=date.split('-');
+    try{const r=await fetchWithTimeout(`https://www.cbr-xml-daily.com/archive/${y}/${m}/${day}/daily_json.js`);if(!r.ok)continue;return readCbrPoint(await r.json(),currency)}catch(e){}
+  }
+  return null;
+}
+function selectCurrency(currency){
+  selectedCurrency=currency;loadVersion++;marketData=[];officialRows=[];
+  document.querySelectorAll('#currency-switch button').forEach(button=>button.classList.toggle('active',button.dataset.currency===currency));
+  pairLabelEl.textContent=`${currencies[currency].name} · Российский рубль`;tableCurrencyEl.textContent=`1 ${currency}`;document.title=`${currency} / RUB — живой курс`;
+  rateEl.textContent='—';marketRateEl.textContent='—';marketTimeEl.textContent='время —';liveStatusEl.className='live-status';liveWordEl.textContent='ЖДЁМ';changesEl.innerHTML='<div class="change">Загружаю данные…</div>';cbrRatesEl.innerHTML='<tr><td colspan="2">Загружаю данные…</td></tr>';signalEl.className='signal';signalEl.innerHTML='<span class="signal-light"></span><span><strong>Считаю сигнал…</strong><small>Сопоставляю два источника</small></span>';renderSignalRules();
+  loadMarketHistory();loadCbr();
+}
+document.querySelector('#currency-switch').addEventListener('click',e=>{const currency=e.target.dataset.currency;if(currency)selectCurrency(currency)});
+const clocks=[['#clock-msk','Europe/Moscow'],['#clock-ekb','Asia/Yekaterinburg'],['#clock-vvo','Asia/Vladivostok']].map(([selector,timeZone])=>({el:document.querySelector(selector),timeZone}));
+function updateClock(){const now=new Date();clocks.forEach(clock=>clock.el.textContent=now.toLocaleTimeString('ru-RU',{timeZone:clock.timeZone,hour:'2-digit',minute:'2-digit',second:'2-digit'}))}
+updateClock();setInterval(updateClock,1000);selectCurrency('USD');setInterval(()=>refreshMarket(),60*1000);setInterval(()=>{if(!document.hidden)loadCbr()},6*60*60*1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshMarket(true);if(Date.now()-lastCbrLoad>6*60*60*1000)loadCbr()}});addEventListener('resize',drawCombined);
 </script>
 </body>
 </html>
